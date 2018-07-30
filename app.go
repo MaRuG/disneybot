@@ -3,18 +3,16 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/leekchan/timeutil"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 func main() {
 	bot, err := linebot.New(
-        "897e204b0b9e4b7077c21a942256706a",
-        "sBz3fKX7+6A/XCG8OkWhEGqUpXxbEu96TVvAhs/jteeTrUB8wDYKJOm2Xgg4l45c0vH9seTsbaJCmquQ8Hr00oE5JFwi/GyNWhE5xK6lE0mRXOOstSjP8iqp+CDmZyQ0X8uAfLKZFBJsJCzVIKjBzAdB04t89/1O/w1cDnyilFU=",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -37,10 +35,6 @@ func main() {
 				case *linebot.TextMessage:
 					if msg.Text == "test" {
 						bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("success")).Do()
-					} else if msg.Text == "now" {
-						n := time.Now()
-						NowT := timeutil.Strftime(&n, "%Y年%m月%d日%H時%M分%S秒")
-						bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(NowT)).Do()
 					} else if msg.Text == "ビッグサンダーマウンテン" {
 						doc, err := goquery.NewDocument("http://disneyreal.asumirai.info/realtime/disneyland-wait-today.html")
 						if err != nil {
@@ -703,7 +697,30 @@ func main() {
 						if err != nil {
 							log.Fatal(err)
 						}
-					} else {
+					} else if msg.Text == "ユニバ" {
+						var all []string
+
+						doc, err := goquery.NewDocument("http://usjinfo.com/wait/realtime.php")
+						if err != nil {
+							log.Fatal(err)
+						}
+					
+						doc.Find("#contents table tr").Each(func(i int, s *goquery.Selection) {
+							name := s.Find("td:nth-child(1) a  b").Text()
+							time := s.Find("td:nth-child(2) b").Text()
+							time = strings.TrimSpace(time)
+							act := "Name: " + name + "\n" + "Time: " + time + "\n" + "----"
+							all = append(all, act)
+						})
+						re_all := strings.Join(all, "\n")
+						//fmt.Println(re_all)
+						_, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(re_all)).Do()
+						
+						if err != nil {
+							log.Fatal(err)
+						}
+
+					}else {
 						_, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("間違っています!困ったら'ランド'か'シー'ッて打ちな！")).Do()
 						if err != nil {
 							log.Fatal(err)
